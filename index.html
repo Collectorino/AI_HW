@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Expense Tracker</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 700px;
+      margin: 2rem auto;
+    }
+    input {
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      flex: 1;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+    th {
+      text-align: left;
+      padding: 0.75rem;
+      background-color: #f3f4f6;
+      border-bottom: 2px solid #ddd;
+    }
+    td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #eee;
+    }
+    tr:nth-child(even) {
+      background-color: #ffffff;
+    }
+    tr:nth-child(odd) {
+      background-color: #f9fafb;
+    }
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    h3 {
+      font-size: 1.25rem;
+      margin: 1.5rem 0 0.5rem;
+    }
+    .row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- React & ReactDOM CDN -->
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+
+<!-- Babel for JSX support -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<!-- App Code -->
+<script type="text/babel">
+  const { useState } = React;
+
+  function App() {
+    const [expenses, setExpenses] = useState([]);
+    const [item, setItem] = useState("");
+    const [amount, setAmount] = useState("");
+    const [statistics, setStatistics] = useState(null);
+
+    const handleAddExpense = () => {
+      if (!item || isNaN(amount) || amount <= 0) return;
+      setExpenses([...expenses, { item, amount: parseFloat(amount) }]);
+      setItem("");
+      setAmount("");
+      setStatistics(null);
+    };
+
+    const handleCalculate = () => {
+      const total = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+      const average = expenses.length > 0 ? total / 30 : 0;
+      const top3 = [...expenses].sort((a, b) => b.amount - a.amount).slice(0, 3);
+      setStatistics({ total, average, top3 });
+    };
+
+    return (
+      <div>
+        <h2>💸 Monthly Expense Tracker</h2>
+
+        <div className="row">
+          <input
+            placeholder="Item"
+            value={item}
+            onChange={(e) => setItem(e.target.value)}
+          />
+          <input
+            placeholder="Amount ($)"
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+          <button onClick={handleAddExpense}>Add</button>
+        </div>
+
+        <h3>📋 Expenses</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Amount ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {expenses.map((exp, index) => (
+              <tr key={index}>
+                <td>{exp.item}</td>
+                <td>${exp.amount.toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <button style={{ marginTop: "1rem" }} onClick={handleCalculate}>
+          📊 Calculate
+        </button>
+
+        {statistics && (
+          <div style={{ marginTop: "2rem" }}>
+            <h3>📈 Statistics</h3>
+            <p><strong>Total:</strong> ${statistics.total.toFixed(2)}</p>
+            <p><strong>Average Daily:</strong> ${statistics.average.toFixed(2)}</p>
+            <div>
+              <strong>Top 3 Expenses:</strong>
+              <ul>
+                {statistics.top3.map((exp, index) => (
+                  <li key={index}>{exp.item} (${exp.amount.toFixed(2)})</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const root = ReactDOM.createRoot(document.getElementById("root"));
+  root.render(<App />);
+</script>
+</body>
+</html>

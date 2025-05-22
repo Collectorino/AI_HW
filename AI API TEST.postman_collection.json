@@ -1,0 +1,83 @@
+{
+	"info": {
+		"_postman_id": "20a71f82-a921-469a-bae7-c006d8f6cba6",
+		"name": "AI API TEST",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26612730"
+	},
+	"item": [
+		{
+			"name": "HM",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const products = pm.response.json();",
+							"let defective = [];",
+							"",
+							"products.forEach((product, index) => {",
+							"    let issues = [];",
+							"",
+							"    if (!product.title || product.title.trim() === \"\") {",
+							"        issues.push(\"Empty or missing title\");",
+							"    }",
+							"",
+							"    if (typeof product.price !== \"number\" || product.price < 0) {",
+							"        issues.push(\"Invalid or negative price\");",
+							"    }",
+							"",
+							"    if (!product.rating || typeof product.rating.rate !== \"number\" || product.rating.rate > 5) {",
+							"        issues.push(\"Missing or too high rating.rate\");",
+							"    }",
+							"",
+							"    if (issues.length > 0) {",
+							"        defective.push({",
+							"            id: product.id,",
+							"            title: product.title,",
+							"            issues: issues",
+							"        });",
+							"    }",
+							"});",
+							"",
+							"// Проверка наличия дефектов",
+							"pm.test(\"No defective products\", function () {",
+							"    pm.expect(defective.length).to.eql(0);",
+							"});",
+							"",
+							"// Сохраняем в переменную окружения для вывода",
+							"if (defective.length > 0) {",
+							"    console.warn(\"Defective products:\", defective);",
+							"    pm.environment.set(\"defectiveProducts\", JSON.stringify(defective, null, 2));",
+							"} else {",
+							"    pm.environment.unset(\"defectiveProducts\");",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://fakestoreapi.com/products",
+					"protocol": "https",
+					"host": [
+						"fakestoreapi",
+						"com"
+					],
+					"path": [
+						"products"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
